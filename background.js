@@ -94,11 +94,15 @@ class NotificationAlarmManager {
   }
 
   async handleNotificationDetected(notificationData, tab) {
-    const domain = new URL(tab.url).hostname;
-    
-    // Check if this domain is in our monitored sites
-    if (!this.settings.monitoredSites.includes(domain)) {
-      return;
+    // Handle test alarms (no tab provided) or regular notifications
+    let domain = 'test-alarm';
+    if (tab && tab.url) {
+      domain = new URL(tab.url).hostname;
+
+      // Check if this domain is in our monitored sites
+      if (!this.settings.monitoredSites.includes(domain)) {
+        return;
+      }
     }
 
     console.log('Creating alarm for notification from:', domain);
@@ -146,6 +150,7 @@ class NotificationAlarmManager {
 
   playAlarmSound(alarmId) {
     // Send message to content script to play sound
+    // Try active tab first, then fall back to any available tab
     browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
         browser.tabs.sendMessage(tabs[0].id, {
@@ -153,6 +158,31 @@ class NotificationAlarmManager {
           alarmId: alarmId,
           soundFile: this.settings.alarmSound,
           volume: this.settings.volume
+        }).catch(() => {
+          // If active tab fails, try any available tab
+          this.playAlarmSoundFallback(alarmId);
+        });
+      } else {
+        // No active tab, try any available tab
+        this.playAlarmSoundFallback(alarmId);
+      }
+    });
+  }
+
+  playAlarmSoundFallback(alarmId) {
+    // Send to any available tab as fallback
+    browser.tabs.query({}, (tabs) => {
+      for (const tab of tabs) {
+        browser.tabs.sendMessage(tab.id, {
+          type: 'PLAY_ALARM_SOUND',
+          alarmId: alarmId,
+          soundFile: this.settings.alarmSound,
+          volume: this.settings.volume
+        }).then(() => {
+          // Successfully sent to a tab, stop trying others
+          return;
+        }).catch(() => {
+          // Continue to next tab
         });
       }
     });
