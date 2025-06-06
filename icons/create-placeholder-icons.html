@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Placeholder Icons</title>
+</head>
+<body>
+    <h1>Creating placeholder icons...</h1>
+    <canvas id="canvas" style="display: none;"></canvas>
+    
+    <script>
+        function createIcon(size) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = size;
+            canvas.height = size;
+            
+            // Red background
+            ctx.fillStyle = '#dc3545';
+            ctx.fillRect(0, 0, size, size);
+            
+            // White alarm symbol
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `bold ${size * 0.5}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('!', size / 2, size / 2);
+            
+            return canvas.toDataURL('image/png');
+        }
+        
+        // Create and download icons
+        const sizes = [16, 48, 128];
+        sizes.forEach(size => {
+            const dataUrl = createIcon(size);
+            const link = document.createElement('a');
+            link.download = `icon-${size}.png`;
+            link.href = dataUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+        
+        document.body.innerHTML += '<p>Icons should be downloading. Save them to the icons/ directory.</p>';
+    </script>
+</body>
+</html>
