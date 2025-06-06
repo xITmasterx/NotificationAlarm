@@ -171,6 +171,7 @@ class NotificationDetector {
     const audio = document.createElement('audio');
     audio.loop = true;
     audio.volume = volume;
+    audio.preload = 'auto';
 
     // Set sound source
     const soundPath = soundFile === 'default' ?
@@ -178,6 +179,21 @@ class NotificationDetector {
       browser.runtime.getURL(`sounds/${soundFile}`);
 
     audio.src = soundPath;
+
+    // Add event listeners for better loop handling
+    audio.addEventListener('ended', () => {
+      // Ensure looping continues even if loop attribute fails
+      if (this.audioElements.has(alarmId)) {
+        audio.currentTime = 0;
+        audio.play().catch(console.error);
+      }
+    });
+
+    audio.addEventListener('error', (error) => {
+      console.error('Audio error:', error);
+      // Fallback to system beep if audio file fails
+      this.playSystemBeep(alarmId);
+    });
 
     // Store reference
     this.audioElements.set(alarmId, audio);
@@ -193,8 +209,15 @@ class NotificationDetector {
   stopAlarmSound(alarmId) {
     const audio = this.audioElements.get(alarmId);
     if (audio) {
-      audio.pause();
-      audio.currentTime = 0;
+      if (audio.stop) {
+        // Handle Web Audio API oscillator
+        audio.stop();
+      } else {
+        // Handle HTML5 audio element
+        audio.pause();
+        audio.currentTime = 0;
+        audio.src = ''; // Clear source to free memory
+      }
       this.audioElements.delete(alarmId);
     }
   }
