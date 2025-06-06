@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Sound Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+        .sound-controls { margin: 20px 0; }
+        .sound-controls label { display: block; margin: 5px 0; }
+        .sound-controls input { margin: 0 10px; }
+    </style>
+</head>
+<body>
+    <h1>Test Sound Generator for Notification Alarm Extension</h1>
+    
+    <div class="sound-controls">
+        <h3>Sound Parameters</h3>
+        <label>
+            Frequency: <input type="range" id="frequency" min="200" max="2000" value="800"> 
+            <span id="freqValue">800</span> Hz
+        </label>
+        <label>
+            Duration: <input type="range" id="duration" min="0.5" max="5" step="0.1" value="2"> 
+            <span id="durValue">2</span> seconds
+        </label>
+        <label>
+            Volume: <input type="range" id="volume" min="0" max="1" step="0.1" value="0.3"> 
+            <span id="volValue">0.3</span>
+        </label>
+    </div>
+    
+    <div>
+        <button onclick="playTestSound()">🔊 Play Test Sound</button>
+        <button onclick="generateDefaultAlarm()">Generate Default Alarm</button>
+        <button onclick="generateBeep()">Generate Beep</button>
+        <button onclick="generateSiren()">Generate Siren</button>
+        <button onclick="generateBell()">Generate Bell</button>
+    </div>
+    
+    <div id="status"></div>
+    
+    <h3>Instructions:</h3>
+    <ol>
+        <li>Click the buttons above to test different alarm sounds</li>
+        <li>Adjust the parameters to customize the sounds</li>
+        <li>For the actual extension, you'll need to add real audio files to the sounds/ directory</li>
+        <li>This page demonstrates the fallback Web Audio API sounds used when files are missing</li>
+    </ol>
+    
+    <script>
+        let audioContext;
+        let currentOscillator;
+        
+        // Initialize audio context
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+        
+        // Update display values
+        document.getElementById('frequency').addEventListener('input', function(e) {
+            document.getElementById('freqValue').textContent = e.target.value;
+        });
+        
+        document.getElementById('duration').addEventListener('input', function(e) {
+            document.getElementById('durValue').textContent = e.target.value;
+        });
+        
+        document.getElementById('volume').addEventListener('input', function(e) {
+            document.getElementById('volValue').textContent = e.target.value;
+        });
+        
+        function playTestSound() {
+            initAudio();
+            
+            const frequency = parseFloat(document.getElementById('frequency').value);
+            const duration = parseFloat(document.getElementById('duration').value);
+            const volume = parseFloat(document.getElementById('volume').value);
+            
+            playTone(frequency, duration, volume);
+            
+            document.getElementById('status').textContent = 
+                `Playing ${frequency}Hz tone for ${duration}s at volume ${volume}`;
+        }
+        
+        function playTone(frequency, duration, volume) {
+            if (currentOscillator) {
+                currentOscillator.stop();
+            }
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration);
+            
+            currentOscillator = oscillator;
+        }
+        
+        function generateDefaultAlarm() {
+            initAudio();
+            document.getElementById('status').textContent = 'Playing default alarm pattern...';
+            
+            // Alternating high-low tone pattern
+            const pattern = [800, 600, 800, 600, 800];
+            let delay = 0;
+            
+            pattern.forEach((freq, index) => {
+                setTimeout(() => {
+                    playTone(freq, 0.3, 0.4);
+                }, delay);
+                delay += 400;
+            });
+        }
+        
+        function generateBeep() {
+            initAudio();
+            document.getElementById('status').textContent = 'Playing beep pattern...';
+            
+            // Simple beep pattern
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    playTone(1000, 0.2, 0.3);
+                }, i * 300);
+            }
+        }
+        
+        function generateSiren() {
+            initAudio();
+            document.getElementById('status').textContent = 'Playing siren pattern...';
+            
+            // Siren-like frequency sweep
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+            oscillator.frequency.linearRampToValueAtTime(1200, audioContext.currentTime + 1);
+            oscillator.frequency.linearRampToValueAtTime(400, audioContext.currentTime + 2);
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 2);
+        }
+        
+        function generateBell() {
+            initAudio();
+            document.getElementById('status').textContent = 'Playing bell pattern...';
+            
+            // Bell-like harmonics
+            const frequencies = [523, 659, 784]; // C, E, G
+            
+            frequencies.forEach((freq, index) => {
+                setTimeout(() => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 1.5);
+                }, index * 100);
+            });
+        }
+        
+        // Stop any playing sounds when page unloads
+        window.addEventListener('beforeunload', function() {
+            if (currentOscillator) {
+                currentOscillator.stop();
+            }
+        });
+    </script>
+</body>
+</html>
