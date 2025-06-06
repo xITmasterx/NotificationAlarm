@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification Alarm</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🚨 Notification Alarm</h1>
+            <button id="settingsBtn" class="settings-btn" title="Settings">⚙️</button>
+        </header>
+
+        <div class="status-section">
+            <div class="status-indicator">
+                <span id="statusText">Monitoring notifications...</span>
+                <div id="statusDot" class="status-dot active"></div>
+            </div>
+        </div>
+
+        <div class="active-alarms-section">
+            <h2>Active Alarms</h2>
+            <div id="activeAlarmsList" class="alarms-list">
+                <!-- Active alarms will be populated here -->
+            </div>
+            <div id="noAlarmsMessage" class="no-alarms">
+                No active alarms
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="action-buttons">
+                <button id="dismissAllBtn" class="action-btn dismiss-all">
+                    Dismiss All
+                </button>
+                <button id="snoozeAllBtn" class="action-btn snooze-all">
+                    Snooze All (5min)
+                </button>
+            </div>
+        </div>
+
+        <div class="monitored-sites-section">
+            <h3>Monitored Sites</h3>
+            <div id="monitoredSitesList" class="sites-list">
+                <!-- Monitored sites will be populated here -->
+            </div>
+            <div class="add-site-form">
+                <input type="text" id="newSiteInput" placeholder="Enter website domain (e.g., example.com)">
+                <button id="addSiteBtn" class="add-btn">Add Site</button>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="stats">
+                <span id="totalAlarms">0 total alarms today</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Alarm Item Template -->
+    <template id="alarmTemplate">
+        <div class="alarm-item" data-alarm-id="">
+            <div class="alarm-info">
+                <div class="alarm-title"></div>
+                <div class="alarm-message"></div>
+                <div class="alarm-meta">
+                    <span class="alarm-domain"></span>
+                    <span class="alarm-time"></span>
+                    <span class="alarm-snooze-count"></span>
+                </div>
+            </div>
+            <div class="alarm-actions">
+                <button class="snooze-btn" title="Snooze">😴</button>
+                <button class="dismiss-btn" title="Dismiss">✖️</button>
+            </div>
+        </div>
+    </template>
+
+    <!-- Site Item Template -->
+    <template id="siteTemplate">
+        <div class="site-item" data-domain="">
+            <div class="site-info">
+                <span class="site-domain"></span>
+                <span class="site-status">Active</span>
+            </div>
+            <button class="remove-site-btn" title="Remove">🗑️</button>
+        </div>
+    </template>
+
+    <script src="popup.js"></script>
+</body>
+</html>

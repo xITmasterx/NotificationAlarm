@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification Alarm Settings</title>
+    <link rel="stylesheet" href="options.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🚨 Notification Alarm Settings</h1>
+            <p class="subtitle">Configure how notifications are converted to alarms</p>
+        </header>
+
+        <div class="settings-grid">
+            <!-- Alarm Settings -->
+            <section class="settings-section">
+                <h2>Alarm Settings</h2>
+                
+                <div class="setting-item">
+                    <label for="alarmDuration">Default Alarm Duration (seconds)</label>
+                    <input type="number" id="alarmDuration" min="5" max="300" value="30">
+                    <small>How long alarms ring before auto-dismissing</small>
+                </div>
+
+                <div class="setting-item">
+                    <label for="snoozeTime">Default Snooze Time (minutes)</label>
+                    <input type="number" id="snoozeTime" min="1" max="60" value="5">
+                    <small>Default snooze duration when snoozing alarms</small>
+                </div>
+
+                <div class="setting-item">
+                    <label for="volume">Alarm Volume</label>
+                    <input type="range" id="volume" min="0" max="1" step="0.1" value="0.8">
+                    <span id="volumeValue">80%</span>
+                    <small>Volume level for alarm sounds</small>
+                </div>
+
+                <div class="setting-item">
+                    <label for="alarmSound">Alarm Sound</label>
+                    <select id="alarmSound">
+                        <option value="default">Default Alarm</option>
+                        <option value="beep">Simple Beep</option>
+                        <option value="siren">Siren</option>
+                        <option value="bell">Bell</option>
+                        <option value="custom">Custom Sound</option>
+                    </select>
+                    <small>Choose the sound for alarms</small>
+                </div>
+
+                <div class="setting-item" id="customSoundSection" style="display: none;">
+                    <label for="customSoundFile">Custom Sound File</label>
+                    <input type="file" id="customSoundFile" accept="audio/*">
+                    <small>Upload your own alarm sound (MP3, WAV, OGG)</small>
+                </div>
+            </section>
+
+            <!-- Notification Detection -->
+            <section class="settings-section">
+                <h2>Notification Detection</h2>
+                
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="interceptBrowserNotifications" checked>
+                        Intercept Browser Notifications
+                    </label>
+                    <small>Convert browser notifications to alarms</small>
+                </div>
+
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="detectPageNotifications" checked>
+                        Detect Page Notifications
+                    </label>
+                    <small>Monitor for notification elements on web pages</small>
+                </div>
+
+                <div class="setting-item">
+                    <label for="notificationKeywords">Notification Keywords (optional)</label>
+                    <textarea id="notificationKeywords" rows="3" placeholder="urgent, important, alert&#10;(one per line)"></textarea>
+                    <small>Only trigger alarms for notifications containing these keywords</small>
+                </div>
+            </section>
+
+            <!-- Monitored Sites -->
+            <section class="settings-section">
+                <h2>Monitored Websites</h2>
+                
+                <div class="sites-manager">
+                    <div class="add-site-section">
+                        <input type="text" id="newSiteInput" placeholder="Enter domain (e.g., example.com)">
+                        <button id="addSiteBtn" class="btn-primary">Add Site</button>
+                    </div>
+                    
+                    <div class="sites-list" id="sitesList">
+                        <!-- Sites will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Advanced Settings -->
+            <section class="settings-section">
+                <h2>Advanced Settings</h2>
+                
+                <div class="setting-item">
+                    <label for="maxActiveAlarms">Maximum Active Alarms</label>
+                    <input type="number" id="maxActiveAlarms" min="1" max="20" value="5">
+                    <small>Limit the number of simultaneous active alarms</small>
+                </div>
+
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="persistAcrossSessions">
+                        Persist Alarms Across Browser Sessions
+                    </label>
+                    <small>Keep alarms active when browser is restarted</small>
+                </div>
+
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="showDesktopNotifications">
+                        Show Desktop Notifications
+                    </label>
+                    <small>Display system notifications alongside alarms</small>
+                </div>
+
+                <div class="setting-item">
+                    <label for="debugMode">
+                        <input type="checkbox" id="debugMode">
+                        Debug Mode
+                    </label>
+                    <small>Enable detailed logging for troubleshooting</small>
+                </div>
+            </section>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions">
+            <button id="saveBtn" class="btn-primary">Save Settings</button>
+            <button id="resetBtn" class="btn-secondary">Reset to Defaults</button>
+            <button id="exportBtn" class="btn-secondary">Export Settings</button>
+            <button id="importBtn" class="btn-secondary">Import Settings</button>
+            <input type="file" id="importFile" accept=".json" style="display: none;">
+        </div>
+
+        <!-- Status Message -->
+        <div id="statusMessage" class="status-message"></div>
+
+        <!-- Test Section -->
+        <section class="test-section">
+            <h2>Test Alarm</h2>
+            <p>Test your alarm settings to make sure everything works correctly.</p>
+            <button id="testAlarmBtn" class="btn-test">🔊 Test Alarm</button>
+        </section>
+    </div>
+
+    <!-- Site Item Template -->
+    <template id="siteTemplate">
+        <div class="site-item" data-domain="">
+            <div class="site-info">
+                <span class="site-domain"></span>
+                <div class="site-controls">
+                    <label class="toggle">
+                        <input type="checkbox" class="site-enabled" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <button class="remove-site-btn" title="Remove site">🗑️</button>
+        </div>
+    </template>
+
+    <script src="options.js"></script>
+</body>
+</html>

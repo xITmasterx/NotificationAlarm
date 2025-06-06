@@ -1,0 +1,53 @@
+{
+  "manifest_version": 2,
+  "name": "Notification Alarm",
+  "version": "1.0.0",
+  "description": "Convert website notifications into persistent alarms with snooze functionality",
+
+  "permissions": [
+    "notifications",
+    "storage",
+    "alarms",
+    "tabs",
+    "activeTab",
+    "<all_urls>"
+  ],
+
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_title": "Notification Alarm",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+
+  "web_accessible_resources": [
+    "sounds/*"
+  ]
+}
