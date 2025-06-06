@@ -176,7 +176,7 @@ class NotificationDetector {
     // Set sound source
     const soundPath = soundFile === 'default' ?
       browser.runtime.getURL('sounds/default-alarm.mp3') :
-      browser.runtime.getURL(`sounds/${soundFile}`);
+      browser.runtime.getURL(`sounds/${soundFile}.mp3`);
 
     audio.src = soundPath;
 
